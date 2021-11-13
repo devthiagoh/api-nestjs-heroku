@@ -66,10 +66,10 @@ $ yarn start:prod
 ```
 ## Test in local
 
-http://localhost:5000/companies - FinAll Companies
-http://localhost:5000/jobs - FinAll Jobs
+http://localhost:5000/companies - FinAll Companies   
+http://localhost:5000/jobs - FinAll Jobs   
 
-*For more details of consumes API RestFULL see or download and import Postman collection available in https://drive.google.com/file/d/1vc3hVrgam3d0HMa4ODzcNPuO1bLKitIC/view?usp=sharing 
+*For more details of consumes API RestFULL see or download and import Postman collection available in https://drive.google.com/file/d/1vc3hVrgam3d0HMa4ODzcNPuO1bLKitIC/view?usp=sharing   
 
 ## Support
 
