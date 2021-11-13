@@ -46,13 +46,13 @@ https://connectabil-nestjs-heroku.herokuapp.com/jobsActived - FindAll Jobs Activ
 $ docker-compose up dev
 ```
 
-## Installation the app without Docker
+## Installation the app outside of Docker
 
 ```bash
 $ yarn install
 ```
 
-## Running the app without Docker
+## Running the app outside of Docker
 
 ```bash
 # development
