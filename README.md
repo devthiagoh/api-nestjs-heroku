@@ -26,6 +26,20 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Live in Heroku
+
+https://connectabil-nestjs-heroku.herokuapp.com/
+
+## Test in Live
+
+https://connectabil-nestjs-heroku.herokuapp.com/companies - FindAll Companies
+https://connectabil-nestjs-heroku.herokuapp.com/jobs - FindAll Jbos
+
+https://connectabil-nestjs-heroku.herokuapp.com/companiesActived - FindAll Companies Actived
+https://connectabil-nestjs-heroku.herokuapp.com/jobsActived - FindAll Jobs Actived
+
+*For more details of consumes API RestFull see or download and import Postman collection available in https://drive.google.com/file/d/1vc3hVrgam3d0HMa4ODzcNPuO1bLKitIC/view?usp=sharing
+
 ## Installation
 
 ```bash
