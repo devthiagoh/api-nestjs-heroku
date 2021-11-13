@@ -33,7 +33,7 @@ https://connectabil-nestjs-heroku.herokuapp.com/
 ## Test in Live
 
 https://connectabil-nestjs-heroku.herokuapp.com/companies - FindAll Companies   
-https://connectabil-nestjs-heroku.herokuapp.com/jobs - FindAll Jbos   
+https://connectabil-nestjs-heroku.herokuapp.com/jobs - FindAll Jobs   
    
 https://connectabil-nestjs-heroku.herokuapp.com/companiesActived - FindAll Companies Actived   
 https://connectabil-nestjs-heroku.herokuapp.com/jobsActived - FindAll Jobs Actived   
