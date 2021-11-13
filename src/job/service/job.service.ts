@@ -59,11 +59,6 @@ export class JobService {
 
     if(!job)
       throw new NotFoundException("Job not found!");
-
-    const companies = job.companies.filter( company => company.status === true);
-    
-    if(companies.length > 0)
-      throw new PreconditionFailedException("Job can't be delete!");
       
     await this.model.findByIdAndRemove(id);
   }
@@ -79,12 +74,7 @@ export class JobService {
       if(!job)
         jobs.push(id+": Job not found!");
 
-      const companies = job?.companies.filter( company => company.status === true);
-  
-      if(companies?.length > 0)
-        jobs.push(id+ ": Job can't be delete!");      
-      else  
-        await this.model.findByIdAndRemove(id);
+      await this.model.findByIdAndRemove(id);
     });
 
     await Promise.all(promises);
