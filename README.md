@@ -24,7 +24,7 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) API Backend Server RestFULL with [Mongoose](https://mongoosejs.com/) and [Docker](https://www.docker.com/) 
+[Nest](https://github.com/nestjs/nest) API RestFULL with [Mongoose](https://mongoosejs.com/) and [Docker](https://www.docker.com/) 
 
 ## Live in Heroku
 
@@ -38,7 +38,7 @@ https://connectabil-nestjs-heroku.herokuapp.com/jobs - FindAll Jobs
 https://connectabil-nestjs-heroku.herokuapp.com/companiesActived - FindAll Companies Actived   
 https://connectabil-nestjs-heroku.herokuapp.com/jobsActived - FindAll Jobs Actived   
    
-*For more details of consumes API RestFull see or download and import Postman collection available in https://drive.google.com/file/d/1vc3hVrgam3d0HMa4ODzcNPuO1bLKitIC/view?usp=sharing   
+*For more details of consumes API RestFULL see or download and import Postman collection available in https://drive.google.com/file/d/1vc3hVrgam3d0HMa4ODzcNPuO1bLKitIC/view?usp=sharing   
 
 ## Installation
 
