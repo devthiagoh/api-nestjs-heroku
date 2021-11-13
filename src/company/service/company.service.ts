@@ -80,7 +80,7 @@ export class CompanyService {
     const jobs = company.jobs.filter( job => job.status === true);
     
     if(jobs.length > 0)
-      throw new PreconditionFailedException("Company can't be delete!");
+      throw new PreconditionFailedException("Empresa possui vagas ativas e não pode ser excluída!");
       
     await this.model.findByIdAndRemove(id);
   }
