@@ -4,57 +4,88 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CompanyDTO } from '../dto/company.dto';
 import { ObjectId } from 'mongodb';
 import { Company, CompanyDocument } from '../schema/company.schema';
+
+import { map, json } from '../../utils/utils';
     
 @Injectable()
 export class CompanyService {
 
   constructor(@InjectModel(Company.name) private readonly model: Model<CompanyDocument>) { }
+  
+  /*************************** finds ****************************/
+
+  async findAll(params:Map<string, string>): Promise<Company[]> {
     
-  async create(dto: CompanyDTO): Promise<Company> {
-    const company = await this.model.create(dto);
-    return company.save();
+    let find = map(params);
+    
+    if(find?.has('active'))
+      return this.getCompaniesActive();
+      
+    if(find?.has('job'))
+      return this.getCompaniesByJob(find.get('job'));
+
+    return this.getCompanies();
   }
 
-  async createMany(dtos: CompanyDTO[]): Promise<Company[]> {
-    const companies = await this.model.insertMany(dtos);
-    return companies;
-  }  
-    
-  async get(id): Promise<Company> {
-    const company = await this.model.findById(id).exec();
-    return company;
+  async getCompanies(): Promise<Company[]>{
+    return (await this.model.find().populate("jobs"));
   }
-    
-  async getCompanies(): Promise<Company[]> {
-    const companies = (await this.model.find().populate("jobs"));
-    return companies;
+
+  async getCompaniesActive(): Promise<Company[]> {
+    return (await this.model.find({ status: true }).populate("jobs"));
   }
-    
-  async getCompaniesActived(): Promise<Company[]> {
-    const companies = (await this.model.find().populate("jobs")).filter( company => company.status === true );
-    return companies;
-  }
-    
+
   async getCompaniesByJob(jobName): Promise<Company[]> {
 
     const companies = (await this.model.find().populate("jobs"));
-    const companiesByJobName = [];
+    const companiesByJob = [];
     const promises = companies.map( async company => { 
       await company.jobs.map( async job => { 
         if(job.name === jobName)
-          companiesByJobName.push(company);
+          companiesByJob.push(company);
       });
     });
 
     await Promise.all(promises);
 
-    return companiesByJobName;
+    return companiesByJob;
   }
 
-  async edit(dto: CompanyDTO): Promise<Company> {
-    const jobs = dto.jobs;
-    const company = await this.model.findByIdAndUpdate(dto._id, dto, { $push: { jobs }, new: true });
+  async get(id): Promise<Company> {
+    const company = await this.model.findById(id).exec();
     return company;
+  }
+
+  /*************************** create ***************************/
+  
+  async create(dto: CompanyDTO[]): Promise<Company[]> {
+
+    if(dto.length)
+      return this.createMany(dto);
+
+    return (await this.model.create(dto));
+  }
+
+  async createMany(dtos: CompanyDTO[]): Promise<Company[]> {
+    return await this.model.insertMany(dtos);
+  }
+
+  /**************************** edit ****************************/
+
+  async edit(dtos: CompanyDTO[]) {
+    
+    if(dtos.length)
+      return this.editMany(dtos);
+    
+    return this.editCompany(dtos);
+  }
+    
+  async editCompany(dtos: CompanyDTO[]){
+      
+      const dto = json(dtos);
+      const jobs = dto.jobs;
+      const company = await this.model.findByIdAndUpdate(dto._id, dto, { $push: { jobs }, new: true }).populate("jobs");
+      return company;
   }
 
   async editMany(dtos: CompanyDTO[]): Promise<Company[]> {
@@ -63,15 +94,17 @@ export class CompanyService {
 
     for await (const company of dtos) {
       const jobs = company.jobs;
-      const updated = await this.model.findByIdAndUpdate(company._id, company, { $push: { jobs }, new: true });
+      const updated = await this.model.findByIdAndUpdate(company._id, company, { $push: { jobs }, new: true }).populate("jobs");
       companies.push(updated);
     }
 
     return companies;
   }
 
-  async delete(id): Promise<void> {
+  /*************************** delete ***************************/
 
+  async delete(id): Promise<void> {
+    
     const company = await this.model.findById(id).populate("jobs");
 
     if(!company)
@@ -91,16 +124,16 @@ export class CompanyService {
 
     const promises = ids.map( async (id) =>  {
       
-      const company = await this.model.findById(id);
+      const company = await this.model.findById(id).populate('jobs');
 
       if(!company)
         companies.push(id+": Company not found!");
 
       const jobs = company?.jobs.filter( job => job.status === true);
-  
+      
       if(jobs?.length > 0)
         companies.push(id+ ": Company can't be delete!");      
-      else  
+      else if(company)   
         await this.model.findByIdAndRemove(id);
     });
 

@@ -2,7 +2,7 @@
 import { Controller, Get, Res, HttpStatus, Param, NotFoundException, Post, Body, Put, Delete } from '@nestjs/common';
 import { JobService } from '../service/job.service';
 import { JobDTO } from '../dto/job.dto';
-import { ValidateObjectId } from '../../shared/pipes/validate-object-id.pipes';
+import { ValidateObjectId } from '../../pipes/validate-object-id.pipes';
 
 @Controller()
 export class JobController {
