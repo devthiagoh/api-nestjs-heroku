@@ -69,7 +69,7 @@ export class JobService {
     // });     
 
     const updated = await (await this.model.findByIdAndUpdate(dto._id, dto, { $push: { companiesUpdate }, new: true })).populate("companies");
-    companiesUpdate.forEach( async _id => {
+    companiesUpdate?.forEach( async _id => {
       const jobs = dto;
       await this.modelCompany.findByIdAndUpdate(_id, { $push: { jobs }, upsert: true });
     }); 
