@@ -43,6 +43,27 @@ export class JobService {
 
   async create(dto: JobDTO): Promise<Job> {
 
+    let promise = null;
+    let company = '';      
+
+    try {
+      
+      promise = dto.companies.forEach( async id => {
+        const find = (await this.findCompanyById(id)).toObject();
+        console.log(find.name);
+        if(!find.status)
+          company = find.name;
+      });
+
+      await Promise.all(promise);
+
+      if(company)
+        throw company;
+
+    } catch (error) {
+      throw new PreconditionFailedException(`Empresa ${company} está inativa! Por favor informe outra!`);
+    }
+
     const job = await this.model.create(dto);
     const created = (await job.save()).populate("companies");
     const companies = (await created).companies;
@@ -53,6 +74,10 @@ export class JobService {
     });
 
     return created;
+  }
+
+  async validateCompany(){
+    
   }
 
   async createMany(dtos: JobDTO[]): Promise<Job[]> {
@@ -162,8 +187,4 @@ export class JobService {
 
     return jobs;
   }
-}
-
-function next(error: any) {
-  throw new Error('Function not implemented.');
 }
