@@ -35,8 +35,8 @@ https://connectabil-nestjs-heroku.herokuapp.com/
 https://connectabil-nestjs-heroku.herokuapp.com/companies - FindAll Companies   
 https://connectabil-nestjs-heroku.herokuapp.com/jobs - FindAll Jobs   
 ```   
-https://connectabil-nestjs-heroku.herokuapp.com/companies?params=[["active", true]] - FindAll Companies Actived   
-https://connectabil-nestjs-heroku.herokuapp.com/companies?params=[["job",  "FullStack Sênior"]] - FindAll Companies by Job   
+https://connectabil-nestjs-heroku.herokuapp.com/companies?params=[['active', true]] - Companies Actived   
+https://connectabil-nestjs-heroku.herokuapp.com/companies?params=[['job', 'FullStack Sênior']] - Companies by Job   
 ```   
 *For more details of consumes API RestFULL see or download and import Postman collection available in https://drive.google.com/file/d/1vc3hVrgam3d0HMa4ODzcNPuO1bLKitIC/view?usp=sharing   
 
