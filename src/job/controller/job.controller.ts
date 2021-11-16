@@ -30,6 +30,13 @@ export class JobController {
     return res.status(HttpStatus.OK).json(jobs);
   }
 
+  @Post('/many')
+  async createMany(@Res() res, @Body() dtos: JobDTO[]) {
+    
+    const jobs = await this.service.createMany(dtos);
+    return res.status(HttpStatus.OK).json(jobs);
+  }
+
   @Put()
   async edit(@Res() res, @Body() dto: JobDTO) {
     
@@ -37,7 +44,7 @@ export class JobController {
     return res.status(HttpStatus.OK).json(job);
   }
 
-  @Put()
+  @Put('/many')
   async editMany(@Res() res, @Body() dtos: JobDTO[]) {
     
     const jobs = await this.service.editMany(dtos);
