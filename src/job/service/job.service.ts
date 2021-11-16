@@ -1,10 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, PreconditionFailedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CompanyDTO } from 'src/company/dto/company.dto';
 import { Company, CompanyDocument } from '../../company/schema/company.schema';
 import { JobDTO } from '../dto/job.dto';
 import { Job, JobDocument } from '../schema/job.schema';
-    
+
+import { map, json } from '../../utils/utils';
+
 @Injectable()
 export class JobService {
 
@@ -12,26 +15,34 @@ export class JobService {
               @InjectModel(Company.name) private readonly modelCompany: Model<CompanyDocument>) { }
   
   /*************************** finds ****************************/
-              
-  async get(id): Promise<Job> {
-    const job = await this.model.findById(id).exec();
-    return job;
-  }
+  
+  async findAll(params:Map<string, string>): Promise<Job[]> {
     
+    let find = map(params);
+    
+    if(find?.has('active'))
+      return this.getJobsActive();
+
+    return this.getJobs();
+  }
+  
   async getJobs(): Promise<Job[]> {
-    const jobs = (await this.model.find().populate("companies"));
-    return jobs;
+    return (await this.model.find().populate("companies"));
   }
     
-  async getJobsActived(): Promise<Job[]> {
-    const jobs = (await this.model.find().populate("companies")).filter( job => job.status === true );
-    return jobs;
+  async getJobsActive(): Promise<Job[]> {
+    return (await this.model.find().populate("companies")).filter( job => job.status === true );
+  }
+
+  async get(id): Promise<Job> {
+    const job = await this.model.findById(id).populate("companies").exec();
+    return job;
   }
 
   /*************************** create ***************************/
 
   async create(dto: JobDTO): Promise<Job> {
-    
+
     const job = await this.model.create(dto);
     const created = (await job.save()).populate("companies");
     const companies = (await created).companies;
@@ -53,28 +64,59 @@ export class JobService {
 
   async edit(dto: JobDTO): Promise<Job> {
     
-    const companiesUpdate = dto.companies;
-    // const companiesRemoveJob = [];
-    // // console.log(companies);
-    // const jobSaved = (await this.get(dto._id)).toObject();
-    // jobSaved.companies.forEach( async companySaved => {
-    //   console.log('companySaved: ' +companySaved._id.toString());
-      
-    //   const idsUpdate = companiesUpdate.map(companyUpdate => companyUpdate._id ? companyUpdate._id : companyUpdate);
+    const jobUpdatedId = dto._id;
+    const jobSaved = (await this.get(jobUpdatedId)).toObject();
 
-    //   const found = idsUpdate.filter( companyUpdate => companyUpdate === companySaved.toString());
-    //   console.log('found: ' +found.toString());  
-    //   if(!found.values)
-    //     console.log('not found');//await this.modelCompany.findByIdAndRemove(companySaved._id, { $push: { jobSaved }, upsert: true });  
-    // });     
-
-    const updated = await (await this.model.findByIdAndUpdate(dto._id, dto, { $push: { companiesUpdate }, new: true })).populate("companies");
-    companiesUpdate?.forEach( async _id => {
-      const jobs = dto;
-      await this.modelCompany.findByIdAndUpdate(_id, { $push: { jobs }, upsert: true });
-    }); 
+    /************************* update job *************************/
+    const updated = this.update(dto);
+    const jobUpdated = (await updated).toObject();    
+    
+    /********************** update companies **********************/
+    this.updateCompanies(jobUpdatedId, jobSaved, jobUpdated);
 
     return updated;
+  }
+
+  async update(dto: JobDTO) {
+    const companies = dto.companies;
+    return await (await this.model.findByIdAndUpdate(dto._id, dto, { $push: { companies }, new: true })).populate("companies");
+  }
+
+  async updateCompanies(jobUpdatedId, jobSaved, jobUpdated){
+
+    /********************** update companies **********************/    
+    jobUpdated.companies.forEach( async company => {
+      const companyUpdated = (await this.findCompanyById(company._id)).toObject();
+      const length = companyUpdated.jobs.length;
+      if(length > 0){
+        const found = companyUpdated.jobs.some(job => job._id.toString() === jobUpdatedId);
+        if(!found) //prevent duplicate
+          this.updateCompany(companyUpdated, jobUpdatedId);
+      } else { 
+        this.updateCompany(companyUpdated, jobUpdatedId);
+      } 
+    });
+
+    /****************** unbind job of saved company *****************/
+    jobSaved.companies.forEach( async companySaved => {
+      const found = jobUpdated.companies.some(companyUpdated => companyUpdated._id.toString() === companySaved._id.toString());
+      if(!found)
+        this.unbindCompany(companySaved, jobUpdatedId);
+    })
+  }
+
+  async unbindCompany(company, jobUpdatedId){
+    const jobs = jobUpdatedId;
+    await this.modelCompany.findByIdAndUpdate(company, { $pull: { jobs }, upsert: true });
+  }
+
+  async updateCompany(company, jobUpdatedId){
+    const jobs = jobUpdatedId;
+    return await this.modelCompany.findByIdAndUpdate(company, { $push: { jobs }, upsert: true });
+  }
+  
+  async findCompanyById(_id){
+    return (await this.modelCompany.findById(_id)).populate("jobs");
   }
 
   async editMany(dtos: JobDTO[]): Promise<Job[]> {      
@@ -120,4 +162,8 @@ export class JobService {
 
     return jobs;
   }
+}
+
+function next(error: any) {
+  throw new Error('Function not implemented.');
 }
