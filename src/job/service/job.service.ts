@@ -43,12 +43,10 @@ export class JobService {
 
   async create(dto: JobDTO): Promise<Job> {
     
-    let company = '';
-
     try{
-      company = (await this.validateCompany(dto)).toString();
+      await this.validateCompany(dto);
     } catch (error) {
-      throw new PreconditionFailedException(`Empresa ${company} está inativa! Por favor informe outra!`);
+      throw new PreconditionFailedException(`Empresa ${error} está inativa! Por favor informe outra!`);
     }
 
     const job = await this.model.create(dto);
@@ -77,8 +75,6 @@ export class JobService {
     await Promise.all(promise);
     if(company.length > 0)
       throw company;
-       
-    return company;
   }
 
   async createMany(dtos: JobDTO[]): Promise<Job[]> {
