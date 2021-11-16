@@ -42,24 +42,11 @@ export class JobService {
   /*************************** create ***************************/
 
   async create(dto: JobDTO): Promise<Job> {
+    
+    let company = '';
 
-    let promise = null;
-    let company = '';      
-
-    try {
-      
-      promise = dto.companies.forEach( async id => {
-        const find = (await this.findCompanyById(id)).toObject();
-        console.log(find.name);
-        if(!find.status)
-          company = find.name;
-      });
-
-      await Promise.all(promise);
-
-      if(company)
-        throw company;
-
+    try{
+      company = (await this.validateCompany(dto)).toString();
     } catch (error) {
       throw new PreconditionFailedException(`Empresa ${company} está inativa! Por favor informe outra!`);
     }
@@ -76,8 +63,22 @@ export class JobService {
     return created;
   }
 
-  async validateCompany(){
+  async validateCompany(dto: JobDTO){
     
+    let company = '';
+      
+    const promise = dto.companies.map( async id => {
+      const find = (await this.findCompanyById(id)).toObject();
+      if(find.status !== true){
+        company = find.name;
+      }
+    });
+
+    await Promise.all(promise);
+    if(company.length > 0)
+      throw company;
+       
+    return company;
   }
 
   async createMany(dtos: JobDTO[]): Promise<Job[]> {
