@@ -86,6 +86,12 @@ export class JobService {
 
   async edit(dto: JobDTO): Promise<Job> {
     
+    try{
+      await this.validateCompany(dto);
+    } catch (error) {
+      throw new PreconditionFailedException(`Empresa ${error} está inativa! Por favor informe outra!`);
+    }
+
     const jobUpdatedId = dto._id;
     const jobSaved = (await this.get(jobUpdatedId)).toObject();
 
